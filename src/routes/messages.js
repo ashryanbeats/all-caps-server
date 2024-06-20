@@ -23,14 +23,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-const updateMessageFolder = async (grantId, messageId, updatedMetadata) => {
-  const { nylas, nylasConfig } = req;
-
+const updateMessageMetadata = async (
+  nylas,
+  grantId,
+  messageId,
+  newMetadata
+) => {
   try {
     const updatedMessage = await nylas.messages.update({
       identifier: grantId,
       messageId,
-      requestBody: updatedMetadata,
+      requestBody: newMetadata,
     });
 
     console.log("Message updated:", updatedMessage);
@@ -41,16 +44,24 @@ const updateMessageFolder = async (grantId, messageId, updatedMetadata) => {
   }
 };
 
-router.put("/:messageId/metadata", (req, res) => {
+router.put("/:messageId/metadata", async (req, res) => {
   const { nylas, nylasConfig } = req;
-
   const { messageId } = req.params;
-  const { grantId, updatedMetadata } = req.body;
+  const { newMetadata } = req.body;
 
-  const updatedMessage = updateMessageFolder(
+  if (!newMetadata) {
+    return res
+      .status(400)
+      .json({ message: "No metadata found in request body." });
+  }
+
+  const grantId = process.env.NYLAS_GRANT_ID;
+
+  const updatedMessage = await updateMessageMetadata(
+    nylas,
     grantId,
     messageId,
-    updatedMetadata
+    newMetadata
   );
 
   res.json(updatedMessage);
