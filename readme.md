@@ -1,6 +1,6 @@
 # Flickmail
 
-Flick your messages off.
+Flick your mail off.
 
 This readme covers both the server and client repos for Flickmail.
 
